@@ -575,6 +575,15 @@ class FlowModel(Model):
             Desired detector sensitivity consistent with the string following the `pdet` and `snropt` columns in the population dataframes.
             Used to construct a detection-weighted population model, as well as for drawing samples from the underlying population
             to calculate the detection efficiency
+        multisensitivity : bool
+            If True, calculates the detection efficiency by finding the average pdet over any previous observing run, weighted by the fractional observing time.
+            If False, only uses pdet at specified sensitivity.
+        deteff_model_path : str or None
+            The path to neural network models to use for detection efficiency interpolation. 
+            If None, falls back to a pchip interpolation across detection efficiencies evaluated at input population samples.
+        hps_by_indx : bool
+            If True, expects the hyperparameters to be associated to indices in the input population samples. 
+            If False, expects the hyperparameters to lie on a grid and associated with hierarchical keys in the input file.
         
         Returns
         ----------
@@ -649,6 +658,12 @@ class FlowModel(Model):
             detection efficiency values for each submodel
         model_keys : list
             The combinations of hyperparameter indices used as keys in the samples, combined_weights, and alpha dictionaries
+        deteff_model_path : str or None
+            The path to neural network models to use for detection efficiency interpolation. 
+            If None, falls back to a pchip interpolation across detection efficiencies evaluated at input population samples.
+        hps_by_indx : bool
+            If True, expects the hyperparameters to be associated to indices in the input population samples. 
+            If False, expects the hyperparameters to lie on a grid and associated with hierarchical keys in the input file.
         """
 
         super()
