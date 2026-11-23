@@ -124,7 +124,7 @@ class NFlow():
         n_batches = ytrainsize // batch_size
 
         n_train_per_epoch = int(ytrainsize * frac_dataset_per_epoch)
-        n_batches = n_train_per_epoch // batch_size
+        n_batches = -(-n_train_per_epoch // batch_size)
         n_val_per_epoch = int(val_samps.shape[0])
 
         #update batch size if not using all samples in training/val set every epoch
@@ -137,7 +137,7 @@ class NFlow():
             if verbose:
                 print(f'Downsampling no. training samples per epoch to {n_train_per_epoch} and no. validation samples per epoch to {n_val_per_epoch}')
         val_batch_size = batch_size
-        n_val_batches = n_val_per_epoch // val_batch_size
+        n_val_batches = -(-n_val_per_epoch // val_batch_size)
         if verbose:
             print(f'Using a batch size of {batch_size} for {ytrainsize} total training samples.')
 
@@ -163,7 +163,9 @@ class NFlow():
             
             #Training
             for i in range(n_batches):
-                idx = shuffled_inds[i * batch_size:(i + 1)*batch_size]
+                batch_start = i*batch_size
+                batch_end = np.min(batch_start+batch_size, n_train_per_epoch)
+                idx = shuffled_inds[batch_start:batch_end]
                 #calculate the training loss function for flow as -mean(weight(x)*log_prob(x))
                 unweighted_KL = self.network.log_prob(training_samps[idx], conditional=training_conds[idx])
                 loss = -(training_weights[idx]*unweighted_KL).mean()
@@ -194,8 +196,10 @@ class NFlow():
                 #loop over all validation data to avoid memory issues, but validate on all available data per epoch
                 for i in range(n_val_batches):
                     #calculate flow validation loss
-                    unweighted_KL_loss = self.network.log_prob(val_samps_batch[i*val_batch_size:(i + 1)*val_batch_size], conditional=val_conds_batch[i*val_batch_size:(i + 1)*val_batch_size])
-                    weighted_sum += (val_weights_batch[i*val_batch_size:(i + 1)*val_batch_size] * unweighted_KL_loss.reshape(-1)).mean()
+                    batch_start = i*val_batch_size
+                    batch_end = np.min(batch_start+val_batch_size, n_val_per_epoch)
+                    unweighted_KL_loss = self.network.log_prob(val_samps_batch[batch_start:batch_end], conditional=val_conds_batch[batch_start:batch_end])
+                    weighted_sum += (val_weights_batch[batch_start:batch_end] * unweighted_KL_loss.reshape(-1)).mean()
 
                 total_val_loss =  - weighted_sum / n_val_batches
                 #total_unweighted_KL_val = -unweighted_KL_loss.mean().cpu().numpy()
