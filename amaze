@@ -130,7 +130,7 @@ def amaze(args):
 
 
     # --- Generate observations (shape: [observations, samples, params])
-    if not settings['train-only']:
+    if not settings['train-flows']:
         if verbose:
             print("\n\nGenerating observations...\n")
 
@@ -216,16 +216,13 @@ def amaze(args):
                         update_every=settings['update-every'], \
                         frac_dataset_per_epoch=settings['frac-dataset-per-epoch'],\
                         verbose=verbose)
+                if verbose:
+                    print('Flows finished training, ending AMAZE now')
+                sys.exit()
             else:
-                if settings['train-only'] == True:
-                    print('train-only function requires train-flows setting to be True. Please change settings.')
                 pop_models[channel].load_model(\
                         settings['flow-model-path'], \
                         device=settings['device'])
-        if settings['train-only'] == True:
-            if verbose:
-                print('Flows finished training, ending AMAZE now')
-            sys.exit()
     else:
         if verbose:
             print("\nFreezing sample evaluations in their respective models...")
