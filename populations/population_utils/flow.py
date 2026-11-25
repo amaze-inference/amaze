@@ -164,7 +164,7 @@ class NFlow():
             #Training
             for i in range(n_batches):
                 batch_start = i*batch_size
-                batch_end = np.min(batch_start+batch_size, n_train_per_epoch)
+                batch_end = np.min([batch_start+batch_size, n_train_per_epoch])
                 idx = shuffled_inds[batch_start:batch_end]
                 #calculate the training loss function for flow as -mean(weight(x)*log_prob(x))
                 unweighted_KL = self.network.log_prob(training_samps[idx], conditional=training_conds[idx])
@@ -197,7 +197,7 @@ class NFlow():
                 for i in range(n_val_batches):
                     #calculate flow validation loss
                     batch_start = i*val_batch_size
-                    batch_end = np.min(batch_start+val_batch_size, n_val_per_epoch)
+                    batch_end = np.min([batch_start+val_batch_size, n_val_per_epoch])
                     unweighted_KL_loss = self.network.log_prob(val_samps_batch[batch_start:batch_end], conditional=val_conds_batch[batch_start:batch_end])
                     weighted_sum += (val_weights_batch[batch_start:batch_end] * unweighted_KL_loss.reshape(-1)).mean()
 
