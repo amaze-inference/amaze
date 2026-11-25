@@ -631,7 +631,7 @@ class FlowModel(Model):
             
         if deteff_model_path is not None:
             latest_run = sensitivity.split('_')[0]
-            deteff_model_path=f'{deteff_model_path}/{channel}_{latest_run}/final_model/model/model.pth'
+            deteff_model_path=f'{deteff_model_path}/{channel}_{latest_run}/model.pth'
 
         return FlowModel(channel, samples, param_dict, channel_hyperparams, combined_weights, alpha, model_keys, deteff_model_path, hps_by_indx)
 
